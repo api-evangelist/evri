@@ -1,0 +1,432 @@
+aid: evri
+name: Evri
+review:
+  question: Does Evri publish a public developer surface — documentation, API reference,
+    or machine-readable specification — that a counterparty in the supply chain can
+    integrate against without a commercial agreement?
+  answer: false
+  date: '2026-07-30'
+  reviewer: API Evangelist
+  tier: parcel-integrator
+  cohort: air-cargo-parcel
+  homeCountry: United Kingdom
+  domainVerified: true
+  domainNote: >-
+    evri.com resolves and is the real primary domain for Evri (formerly Hermes UK).
+    www.evri.co.uk returns 404. international.evri.com now 302s into
+    https://www.evri.com/international-send. The roster hint was correct.
+
+findings:
+  summary: |
+    Evri publishes no public API. There is no developer portal, no API reference, no
+    SDK, no Postman collection, and no OpenAPI/AsyncAPI/GraphQL artifact anywhere on
+    a first-party Evri host. Every developer-shaped subdomain fails to resolve at all
+    (developer., developers., docs., apidocs., api-docs., apidoc., sandbox.,
+    portal., integration.), and every developer-shaped path on www.evri.com soft-404s
+    into https://www.evri.com/404-not-found.
+
+    Evri does operate a real, managed API estate — it is simply not published. The
+    host api.evri.com resolves through a CNAME to
+    tyk-gateway-prod-alb-1770530998.eu-west-1.elb.amazonaws.com and its
+    unauthenticated /hello endpoint returns a Tyk Gateway 5.13.0 health document
+    reporting a healthy Tyk Dashboard and Redis. That is an API management platform
+    in production. No listen path was discoverable: /, /v1, /v2, /docs, /api,
+    /api-docs, /swagger.json, /openapi.json, /swagger-ui.html, /.well-known/openapi.json,
+    /tracking, /parcelshop, /v1/parcelshops and /print-in-store all returned 404
+    text/plain "Not Found".
+
+    The API family is real but is documented only to contracted customers, and its
+    shape is only observable second-hand through the shipping-API aggregators that
+    resell it. Those aggregators consistently describe a credential bundle issued by
+    an Evri account manager or sales representative — API Username, API Password,
+    Client ID, Client Name, optional Child Client ID / Child Client Name, Auth ID,
+    Auth Secret and API Key, plus separate ParcelShop API and Print in Store API
+    credentials — with a Production/Testing endpoint switch. AfterShip states plainly
+    that you email the EVRi sales representative and "the EVRi team will provide you
+    with the API credentials for both the Sandbox and production environment." A
+    sandbox exists; it is not reachable without a commercial relationship.
+
+    The single most telling published gap: ShipEngine documents that "EVRi does not
+    send estimated rates to ShipStation API, as EVRi does not have an available Rates
+    API" — contracted rates are handed over out of band by the account manager. So of
+    the canonical parcel-integrator API family (rating/quoting, label creation,
+    pickup, tracking, address validation, customs documentation, returns), rating is
+    absent entirely and the rest are gated.
+  apiFamilyObserved:
+    - capability: Rating / quoting
+      published: false
+      note: ShipEngine states EVRi has no available Rates API; contracted rates are
+        supplied out of band by the Evri account contact.
+      evidence: https://www.shipengine.com/docs/carriers/evri-guide/
+    - capability: Shipment creation / label generation
+      published: false
+      note: Exists under contract. Labels observed in PDF and PNG (Intersoft Sapient),
+        and ZPL/PNG/PDF via EasyPost. Single-package services only per Intersoft.
+      evidence: https://docs.intersoftsapient.net/docs/evri
+    - capability: Tracking
+      published: false
+      note: Tracking updates are delivered to contracted integrators. Intersoft
+        Sapient documents tracking data files sent via SFTP. Evri publishes no
+        webhook, subscription or event-catalog documentation of its own.
+      evidence: https://docs.intersoftsapient.net/docs/evri
+    - capability: ParcelShop lookup
+      published: false
+      note: A distinct "ParcelShop API Key" is listed as an optional EVRi Corporate
+        credential by ShipEngine, confirming a separate ParcelShop API exists behind
+        the contract. The public ParcelShop finder at www.evri.com/find-a-parcelshop
+        is a web UI only.
+      evidence: https://help.shipengine.com/hc/en-us/articles/4406871483291-EVRi-Corporate
+    - capability: Print in Store / QR returns
+      published: false
+      note: ShipEngine lists Print in Store API credentials as a separate optional
+        credential set; QR codes are supported for returns shipments. AfterShip notes
+        QR permissions can take 3-5 business days to enable.
+      evidence: https://support.aftership.com/en/shipping/article/get-credentials-to-access-evri-shipping-api-1bobhy6
+    - capability: Returns
+      published: false
+      note: Outbound and returns services both offered under the contracted
+        integration; consumer-facing returns are a web/QR journey.
+    - capability: Address validation
+      published: false
+      note: No address-validation surface referenced in any first-party or
+        aggregator material probed.
+    - capability: Customs documentation
+      published: false
+      note: International DDU/DDP courier and postal services exist; Intersoft
+        Sapient's integration supports DDU incoterm only. No published customs API.
+
+interoperability:
+  standardConformance:
+    standard: none
+    version: null
+    statement: >-
+      No standard reference found. Evri publishes no conformance claim to any
+      logistics interoperability standard. Specifically checked and not found:
+      DCSA (not applicable — Evri is not ocean), IATA ONE Record and IATA Cargo-XML
+      (not applicable — Evri is not an air cargo carrier), GS1 (no EPCIS event
+      vocabulary, no SSCC/GTIN/GLN/Digital Link reference in any first-party page or
+      aggregator carrier guide), UN/EDIFACT and ANSI X12 (no EDI message set
+      referenced anywhere), UN/CEFACT MMT RDM, WCO Data Model, eFTI, MLETR/eBL,
+      NMFTA and SCAC. UPU standards posture: not applicable in the designated-operator
+      sense — Evri is a private carrier, not the UK's designated postal operator
+      (that is Royal Mail), and no UPU S10 barcode or UPU EDI (M40/ITMATT) reference
+      was found.
+    evidence:
+      - url: https://www.evri.com/
+        status: 200
+        note: No standards, conformance or interoperability claim anywhere in the
+          primary site navigation or footer.
+      - url: https://www.shipengine.com/docs/carriers/evri-guide/
+        status: 200
+        note: Aggregator carrier guide describes a wholly vendor-specific credential
+          and service model; names no standard.
+      - url: https://docs.intersoftsapient.net/docs/evri
+        status: 200
+        note: Integrator documentation names no barcode, GS1 or UPU standard.
+  interfaceShape: proprietary-undocumented
+  interfaceShapeNote: >-
+    A production Tyk-managed API estate demonstrably exists at api.evri.com, but the
+    contract is published nowhere public. The shape is entirely vendor-specific —
+    Evri-issued Client ID / Client Name / Child Client ID account keys and an
+    Evri-specific service code list (Courier2Home, Shop2Home, Shop2Shop, ParcelShop
+    Return, Hermes International and variants). Nothing another party also implements.
+    Consequence for the chain: every counterparty integrates once per relationship,
+    which is why the aggregator layer (EasyPost, ShipEngine/ShipStation, Sendcloud,
+    AfterShip, Intersoft Sapient, Despatch Cloud) exists and carries most of the
+    traffic.
+  identifierScheme:
+    summary: >-
+      Vendor-proprietary only — an Evri parcel tracking number / barcode as the
+      shipment key, plus Evri-issued Client ID and Child Client ID as the account
+      and sub-account keys. No shared cross-party identifier scheme is used or
+      referenced.
+    found:
+      - Evri parcel tracking number (proprietary carrier barcode)
+      - Evri-issued Client ID / Client Name
+      - Evri-issued Child Client ID / Child Client Name (sub-account)
+      - Evri-issued API Key / Auth ID / Auth Secret credential triple
+    notFound:
+      - GS1 SSCC, GTIN, GLN, SGTIN or Digital Link
+      - UPU S10 item identifier
+      - SCAC code
+      - EORI number or HS tariff code exposure
+      - UN/LOCODE, IMO, container number (BIC/ISO 6346), bill of lading, AWB
+    note: >-
+      Air/ocean identifiers are structurally out of scope for a domestic UK last-mile
+      parcel network, but the absence of any GS1 or UPU identifier is the material
+      finding — the parcel key does not travel outside Evri's own systems.
+  eventModel: none-published
+  eventModelNote: >-
+    Evri publishes no event model. No webhook endpoint, no subscription or
+    notification operation, no AsyncAPI document, and no event vocabulary is
+    documented on any first-party host. The only event-delivery mechanism evidenced
+    anywhere is batch: Intersoft Sapient documents Evri tracking data files sent via
+    SFTP, and Evri's own bulk-send tool accepts CSV order upload. Webhook delivery
+    that developers experience as "Evri webhooks" is manufactured by the aggregator
+    layer (Sendcloud "configure webhooks", EasyPost trackers and webhooks), not by
+    Evri. No subscription/webhook operation could be cited because none is published.
+  ediLegacy: >-
+    No EDI referenced. No EDIFACT (IFTMIN/IFTSTA), no ANSI X12 (204/214/856), no VAN
+    and no AS2 onboarding is mentioned in any first-party or aggregator material.
+    The legacy/batch path here is not EDI but flat file — SFTP tracking data drops
+    and CSV bulk upload — sitting alongside a contracted HTTP API rather than under it.
+  multiPartyPosture: >-
+    Publishes to contracted counterparties only, and mostly by proxy. A shipper
+    cannot integrate directly without an Evri Corporate or Business account and an
+    account manager; there is no self-serve path. Evri operates no partner or
+    developer directory of API integrations — the only integration directory it
+    publishes is a set of Evri-built marketplace connectors (eBay, Amazon, Etsy,
+    Shopify, WooCommerce, Magento, BigCommerce, Squarespace, OnBuy, TikTok Shop,
+    Temu, Not On The High Street) that terminate in Evri's own web dashboard, not in
+    the customer's stack. The de facto multi-party surface is the aggregator layer:
+    EasyPost, ShipEngine/ShipStation, Sendcloud, AfterShip, Intersoft Sapient and
+    Despatch Cloud each hold Evri credentials and resell the integration onward. This
+    is the parcel-tier analogue of the travel study's finding — one party's private
+    contract becomes N public re-implementations at the aggregator layer.
+  accessGate: commercial-agreement
+  accessGateDetail: >-
+    A developer must first hold an Evri Corporate or Business account (commercially
+    negotiated — Evri publishes no fixed pricing and states pricing is arranged with
+    an account manager), then email the Evri sales representative or account manager
+    to request API credentials. Evri then issues the credential bundle for both a
+    sandbox and a production environment. Certain capabilities are separately
+    permissioned: AfterShip documents QR-code generation permissions taking 3-5
+    business days to enable after a support request. Nothing is signable or
+    self-serve online; there are no published API terms of service, no rate limits,
+    no plans and no sandbox reachable without the commercial relationship.
+  dcsaMembershipVersusPublication: not-applicable
+  dcsaNote: >-
+    Not an ocean carrier or ocean-adjacent party; DCSA membership and publication are
+    out of scope for this organization.
+  aggregatorReach:
+    - name: EasyPost
+      url: https://docs.easypost.com/carriers/evri-guide
+      credentialsRequired: EVRi API Key, Auth ID, Auth Secret, Client ID, Client Name,
+        Username, Password
+    - name: ShipEngine / ShipStation API
+      url: https://www.shipengine.com/docs/carriers/evri-guide/
+      carrierCode: hermescorp
+      note: Endpoint property selects Production or Testing. Explicitly states EVRi
+        has no available Rates API.
+    - name: AfterShip
+      url: https://support.aftership.com/en/shipping/article/get-credentials-to-access-evri-shipping-api-1bobhy6
+      note: Credentials obtained by emailing the EVRi sales representative; sandbox
+        and production issued together.
+    - name: Sendcloud
+      url: https://www.sendcloud.com/en-uk/courier-apis/evri-api/
+      note: Single REST API over Evri with rates, labels, tracking, returns and
+        webhooks — all Sendcloud-manufactured, not Evri-published.
+    - name: Intersoft Sapient
+      url: https://docs.intersoftsapient.net/docs/evri
+      note: PDF/PNG labels, QR for returns, SFTP tracking data files, DDU only,
+        single-package services only.
+
+probes:
+  developerSubdomains:
+    - url: https://developer.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://developers.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://docs.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://apidocs.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://api-docs.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://apidoc.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://sandbox.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://portal.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://integration.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://apis.evri.com/
+      status: 000
+      note: Does not resolve.
+    - url: https://api.evri.co.uk/
+      status: 000
+      note: Does not resolve.
+    - url: https://developer.evri.co.uk/
+      status: 000
+      note: Does not resolve.
+    - url: https://api.hermes-europe.co.uk/
+      status: 000
+      note: Legacy Hermes host does not resolve.
+  developerPaths:
+    - url: https://www.evri.com/developers
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/api
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/business/api
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/business/evri-api
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/business/integrations
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/openapi.json
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/swagger.json
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/.well-known/
+      status: 200
+      note: Soft 404 — redirects to https://www.evri.com/404-not-found.
+    - url: https://www.evri.com/.well-known/security.txt
+      status: 200
+      note: Soft 404 — returns the SPA shell, not a security.txt. No RFC 9116 file.
+    - url: https://www.evri.com/our-services/integrations
+      status: 200
+      note: Meta-refresh to /our-services/bulk-send. Marketplace connectors, no API.
+  apiGateway:
+    host: api.evri.com
+    dnsCname: tyk-gateway-prod-alb-1770530998.eu-west-1.elb.amazonaws.com
+    platform: Tyk Gateway 5.13.0 (Tyk Dashboard + Redis reported healthy)
+    probes:
+      - url: https://api.evri.com/hello
+        status: 200
+        contentType: application/json
+        note: Unauthenticated Tyk gateway health check. The only reachable path found.
+      - url: https://api.evri.com/
+        status: 404
+        note: text/plain "Not Found"
+      - url: https://api.evri.com/docs
+        status: 404
+      - url: https://api.evri.com/api-docs
+        status: 404
+      - url: https://api.evri.com/swagger.json
+        status: 404
+      - url: https://api.evri.com/openapi.json
+        status: 404
+      - url: https://api.evri.com/swagger-ui.html
+        status: 404
+      - url: https://api.evri.com/.well-known/openapi.json
+        status: 404
+      - url: https://api.evri.com/v1
+        status: 404
+      - url: https://api.evri.com/v2
+        status: 404
+      - url: https://api.evri.com/tracking
+        status: 404
+      - url: https://api.evri.com/parcelshop
+        status: 404
+      - url: https://api.evri.com/v1/parcelshops
+        status: 404
+      - url: https://api.evri.com/print-in-store
+        status: 404
+    interpretation: >-
+      A production API management platform with a dashboard is running. Evri has an
+      API program; it simply does not publish it. Nothing here was treated as a
+      documented endpoint and no path was recorded as an API.
+  codeAndSocial:
+    - url: https://api.github.com/orgs/evri
+      status: 404
+      note: No Evri GitHub organization.
+    - url: https://api.github.com/orgs/hermes-uk
+      status: 200
+      note: >-
+        Legacy org named "Hermes", location Leeds UK, blog hermesworld.com, created
+        2014, 0 public repositories. Consistent with the pre-rebrand Hermes UK but
+        ownership is unconfirmed and it holds no artifacts, so it was not recorded
+        in apis.yml.
+    - url: https://www.linkedin.com/company/evri
+      status: 200
+      note: >-
+        Redirects to https://www.linkedin.com/company/sakin-hq — a different company.
+        No verified Evri LinkedIn URL was established, so none was recorded.
+  harvest:
+    openapi: 0
+    asyncapi: 0
+    graphql: 0
+    postman: 0
+    note: Nothing real was found to harvest. No openapi/ directory was created.
+
+sources:
+  - url: https://www.evri.com/
+    type: Website
+    status: 200
+    note: Primary domain confirmed. No developer or API entry point in navigation or
+      footer.
+  - url: https://www.evri.com/business-accounts
+    type: Documentation
+    status: 200
+    note: >-
+      "We don't have fixed prices. Instead, we work with you to arrange a pricing
+      structure that suits your business needs... Your account manager can help you
+      set everything up." Confirms the commercial-agreement gate.
+  - url: https://business.evri.com/
+    type: Portal
+    status: 200
+    note: Authenticated business customer login. Send/track/quote and user guides
+      only — not a developer portal.
+  - url: https://www.evri.com/our-services/bulk-send
+    type: Integrations
+    status: 200
+    note: Marketplace connectors into Evri's own dashboard plus CSV upload. No API.
+  - url: https://www.evri.com/responsible-disclosure-policy
+    type: VulnerabilityDisclosure
+    status: 200
+  - url: https://www.evri.com/cyber-security
+    type: Security
+    status: 200
+  - url: https://api.evri.com/hello
+    type: APIGatewayHealth
+    status: 200
+    note: Tyk Gateway 5.13.0 health document.
+  - url: https://www.shipengine.com/docs/carriers/evri-guide/
+    type: ThirdPartyCarrierGuide
+    status: 200
+    note: Credential list, Production/Testing switch, carrier code hermescorp, and
+      the explicit statement that EVRi has no available Rates API.
+  - url: https://docs.easypost.com/carriers/evri-guide
+    type: ThirdPartyCarrierGuide
+    status: 200
+    note: Seven-credential bundle; "Contact EVRi to request a shipper account."
+  - url: https://support.aftership.com/en/shipping/article/get-credentials-to-access-evri-shipping-api-1bobhy6
+    type: ThirdPartyCarrierGuide
+    status: 200
+    note: Email the EVRi sales representative; sandbox and production credentials
+      issued by the EVRi team; QR permissions 3-5 business days.
+  - url: https://docs.intersoftsapient.net/docs/evri
+    type: ThirdPartyCarrierGuide
+    status: 200
+    note: PDF/PNG labels, QR returns, SFTP tracking data files, DDU only,
+      single-package services only.
+  - url: https://www.sendcloud.com/en-uk/courier-apis/evri-api/
+    type: ThirdPartyCarrierGuide
+    status: 200
+    note: Aggregator-manufactured REST + webhooks over Evri.
+  - url: https://group.dhl.com/en/media-relations/press-releases/2025/dhl-ecommerce-uk-and-evri-secure-unconditional-cma-approval.html
+    type: PressRelease
+    note: CMA unconditional approval of the DHL eCommerce UK / Evri merger; combined
+      group scale and Apollo majority ownership.
+
+actions:
+  apisListed: 0
+  apisYmlCreated: true
+  openapiHarvested: false
+  specsCount: 0
+  status: built-stub
+  reason: >-
+    Identity captured and the API posture documented with probe evidence, but apis[]
+    is deliberately empty. Evri's APIs are real and in production behind a Tyk
+    gateway, yet not one of them has a first-party human-readable documentation URL,
+    a published base URL, or a machine-readable contract. Listing them from
+    third-party aggregator descriptions would fabricate a public surface that does
+    not exist. The API family is instead recorded in findings.apiFamilyObserved with
+    the aggregator evidence that establishes it.
