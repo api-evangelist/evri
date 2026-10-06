@@ -62,10 +62,12 @@ deliveryModel:
   generated: '2026-08-28'
   method: derived
 created: '2026-07-30'
-modified: '2026-07-30'
+modified: '2026-10-06'
 specificationVersion: '0.23'
 apis: []
 common:
+- url: https://www.evri.com/news
+  type: Blog
 - type: Website
   url: https://www.evri.com/
 - type: BusinessPortal
