@@ -33,3 +33,15 @@
   relationship: carrier-coverage
   status: not-a-workflow
   arazzo: null
+- slug: evri-shopify-own
+  label: Shopify (own)
+  partner: shopify
+  partner_name: Shopify (own)
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://apps.shopify.com/evri-parcelshop-locator
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null

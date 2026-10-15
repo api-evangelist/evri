@@ -10,6 +10,7 @@ checked:
 - https://monid.ai/tools/evri
 - https://n8n.io/integrations/evri/
 - https://zapier.com/apps/evri/integrations
+- shopify/integrations/shopify-integration-edges.yml
 summary: null
 marketplace_apps: []
 edges:
@@ -42,4 +43,22 @@ edges:
   detected_by: detect-carrier-edges.py
   first_seen: '2026-10-13'
   matched_by: domain:evri.com
+- partner_name: Shopify (own)
+  partner: shopify
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://apps.shopify.com/evri-parcelshop-locator
+  mirror_of: shopify/integrations/shopify-integration-edges.yml
+  apps:
+  - EVRi Parcelshop Locator
+  listing_count: 1
+  detected: '2026-10-15'
+  detected_by: mirror-platform-listings.py
+  publisher_verified:
+  - Built for Shopify
 templates: []
